@@ -27,12 +27,11 @@ app.post('/hello', (req, res) => {
 });
 
 app.post('/order', async (req, res) => {
-  const formData = req.body;
-  const phoneFull = formData.phone_full;
+  const phoneFull = req.body.phone_full;
 
   const options = {
     method: 'GET',
-    url: `https://api.webflow.com/v2/collections/${collectionId}/items`,
+    url: `https://api.webflow.com/v2/collections/${collectionId}/items?limit=100`,
     headers: {
       accept: 'application/json',
       authorization: `Bearer ${token}`,
@@ -43,16 +42,24 @@ app.post('/order', async (req, res) => {
     const response = await axios.request(options);
     const items = response.data.items;
 
+    // Знайти елемент за номером телефону
     const foundItem = items.find(item => item.fieldData.name === phoneFull);
 
     if (foundItem) {
-      return res.status(200).json({ found: true, data: foundItem });
+      return res.status(200).json({
+        found: true,
+        message: 'Елемент знайдено',
+        data: foundItem,
+      });
     } else {
-      return res.status(200).json({ found: false, message: 'Номер не знайдено' });
+      return res.status(200).json({
+        found: false,
+        message: 'Елемент з таким номером не знайдено',
+      });
     }
   } catch (error) {
-    console.error('Помилка при перевірці номера:', error.response?.data || error.message);
-    return res.status(500).json({ error: 'Помилка сервера при перевірці номера' });
+    console.error('Помилка при зверненні до Webflow API:', error.response?.data || error.message);
+    return res.status(500).json({ error: 'Помилка сервера при пошуку номера' });
   }
 });
 
