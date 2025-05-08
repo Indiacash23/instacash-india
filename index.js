@@ -68,6 +68,13 @@ app.post('/order', async (req, res) => {
           fieldData: {
             name: phoneFull,
             slug: phoneFull.replace(/\+/g, ''),
+            "full-name": formData["First-Name"] + ' ' + formData["Last-Name"],
+            "city": formData["City"],
+            "language": formData["Language"],
+            "sum": formData["Sum"],
+            "the-request-has-been-processed": false,
+            "messenger": formData["Messenger"],
+            "status": "61da663c1046e1c2a962dd15679ce3b1",
           },
         },
       };
