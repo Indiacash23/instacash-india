@@ -26,8 +26,8 @@ app.post('/hello', (req, res) => {
   res.send('Hello world');
 });
 
-app.post("/order", (req, res) => {
-  const formData = req.body;  // Дані, отримані з форми
+app.post("/order", async (req, res) => {
+  const formData = req.body; // Дані з форми
 
   try {
     // Отримуємо всі елементи колекції
@@ -42,42 +42,23 @@ app.post("/order", (req, res) => {
     if (!response.ok) {
       return res.status(500).json({ error: 'Не вдалося отримати елементи колекції' });
     }
+
     const data = await response.json();
     const items = data.items;
-    const existingItem = items.find(item => item['fields']['name'] === formData['phone']);
+
+    const existingItem = items.find(item => item['fields']['name'] === formData['phone_full']);
 
     if (existingItem) {
-      return res.status(200).json({ message: 'Елемент з таким номером телефону вже існує' });
+      return res.status(200).json({ exists: true, message: 'Елемент з таким номером вже існує' });
+    } else {
+      return res.status(200).json({ exists: false, message: 'Елементу з таким номером не знайдено' });
     }
-    const createResponse = await fetch(`https://api.webflow.com/collections/${collectionId}/items`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({
-        fields: {
-          'name': formData['phone'],
-          'full-name': formData['first-name'] + ' ' + formData['last-name'],
-          'city': formData['city'],
-          'language': formData['language'],
-          'messenger': formData['messenger'],
-          'sum': formData['sum'],
-        },
-      }),
-    });
-
-    if (!createResponse.ok) {
-      return res.status(500).json({ error: 'Не вдалося створити новий елемент' });
-    }
-    const createData = await createResponse.json();
-    res.status(200).json({ message: 'Новий елемент створено', data: createData });
   } catch (error) {
     console.error('Помилка:', error);
     res.status(500).json({ error: 'Сталася помилка при виконанні запиту' });
   }
 });
+
 
 
 // ----------------
