@@ -23,7 +23,8 @@ const token = '20c3c8ff3b9adbeeabb3730677330760459d9a62d396ec2377949491a2725c72'
 const collectionId = '681b28fcc8c82028a58b5955';
 
 app.post('/order', async (req, res) => {
-  const phoneFull = req.body.phone_full;
+   const formData = req.body;
+  const phoneFull = formData.phone_full;
 
   const options = {
     method: 'GET',
