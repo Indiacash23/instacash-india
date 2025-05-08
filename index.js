@@ -20,7 +20,9 @@ app.use(function (req, res, next) {
   });
 
 
-
+app.post('/hello', (req, res) => {
+  res.send('Hello world');
+});
 
 
 // ----------------
