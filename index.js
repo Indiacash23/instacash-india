@@ -54,15 +54,37 @@ app.post('/order', async (req, res) => {
       });
     } else {
 
-      const createOptions = {
-              method: 'POST',
+      const createItemOptions = {
+        method: 'POST',
               url: `https://api.webflow.com/v2/collections/${collectionId}/items`,
               headers: {
                 accept: 'application/json',
                 authorization: `Bearer ${token}`,
               },
+          fieldData: {
+            "_archived": false,
+            "_draft": false,
+            "name": phoneFull,
+            "slug": phoneFull,
+            "full-name": formData["First-Name"] + ' ' + formData["Last-Name"],
+            "city": formData["City"],
+            "language": formData["Language"],
+            "sum": formData["Sum"],
+            "the-request-has-been-processed": false,
+            "messenger": formData["Messenger"],
+            "status": "61da663c1046e1c2a962dd15679ce3b1",
+          }
+        };
 
-      };
+        axios.request(createItemOptions)
+          .then(res2 => {
+              console.log("Створено новий айтем:", res2.data);
+              res.status(200).json({ message: "Айтем успішно створено" });
+            })
+          .catch(err => {
+            console.error(err);
+            res.end();
+          });
       
     }
   } catch (error) {
