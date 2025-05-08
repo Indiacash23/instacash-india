@@ -52,6 +52,7 @@ app.post('/order', async (req, res) => {
       return res.status(200).json({
         found: false,
         message: 'Елемент з таким номером не знайдено',
+        formData: formData,
       });
     }
   } catch (error) {
