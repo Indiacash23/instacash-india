@@ -24,6 +24,13 @@ app.post('/hello', (req, res) => {
   res.send('Hello world');
 });
 
+app.post("/order", (req, res) => {
+  const formData = req.body;
+  res.json({
+    receivedData: formData,
+  });
+});
+
 
 // ----------------
 
