@@ -1,7 +1,16 @@
 import express from "express";
+import cors from "cors";
 import axios from "axios";
+
 const PORT = process.env.PORT || 5500;
 const app = express();
+
+app.use(cors({
+  origin: 'https://instacash-india.webflow.io',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(
   express.json({
     verify: (req, res, buf) => {
@@ -9,15 +18,6 @@ app.use(
     }
   })
 );
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "https://instacash-india.webflow.io");
-    res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, PATCH");
-    res.header(
-      "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    );
-    next();
-  });
 
 const token = '20c3c8ff3b9adbeeabb3730677330760459d9a62d396ec2377949491a2725c72';
 const collectionId = '681b28fcc8c82028a58b5955';
@@ -25,11 +25,6 @@ const collectionId = '681b28fcc8c82028a58b5955';
 app.post('/hello', (req, res) => {
   res.send('Hello world');
 });
-
-const axios = require('axios');
-
-const token = '20c3c8ff3b9adbeeabb3730677330760459d9a62d396ec2377949491a2725c72';
-const collectionId = '681b28fcc8c82028a58b5955';
 
 app.post('/order', async (req, res) => {
   const formData = req.body;
@@ -73,9 +68,4 @@ app.post('/order', async (req, res) => {
   }
 });
 
-
-
-
-// ----------------
-
-app.listen(PORT, () => console.log("Server on " + PORT))
+app.listen(PORT, () => console.log("Server on " + PORT));
