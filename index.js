@@ -26,36 +26,33 @@ app.post('/hello', (req, res) => {
   res.send('Hello world');
 });
 
-app.post("/order", async (req, res) => {
-  const formData = req.body; // Дані з форми
+app.post('/order', async (req, res) => {
+  const formData = req.body;
+  const phoneFull = formData.phone_full;
+
+  const options = {
+    method: 'GET',
+    url: `https://api.webflow.com/v2/collections/${collectionId}/items`,
+    headers: {
+      accept: 'application/json',
+      authorization: `Bearer ${token}`,
+    },
+  };
 
   try {
-    // Отримуємо всі елементи колекції
-    const response = await fetch(`https://api.webflow.com/collections/${collectionId}/items`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
-      },
-    });
+    const response = await axios.request(options);
+    const items = response.data.items;
 
-    if (!response.ok) {
-      return res.status(500).json({ error: 'Не вдалося отримати елементи колекції' });
-    }
+    const foundItem = items.find(item => item.fieldData.name === phoneFull);
 
-    const data = await response.json();
-    const items = data.items;
-
-    const existingItem = items.find(item => item['fields']['name'] === formData['phone_full']);
-
-    if (existingItem) {
-      return res.status(200).json({ exists: true, message: 'Елемент з таким номером вже існує' });
+    if (foundItem) {
+      return res.status(200).json({ found: true, data: foundItem });
     } else {
-      return res.status(200).json({ exists: false, message: 'Елементу з таким номером не знайдено' });
+      return res.status(200).json({ found: false, message: 'Номер не знайдено' });
     }
   } catch (error) {
-    console.error('Помилка:', error);
-    res.status(500).json({ error: 'Сталася помилка при виконанні запиту' });
+    console.error('Помилка при перевірці номера:', error.response?.data || error.message);
+    return res.status(500).json({ error: 'Помилка сервера при перевірці номера' });
   }
 });
 
