@@ -63,11 +63,11 @@ app.post('/order', async (req, res) => {
           authorization: `Bearer ${token}`,
         },
         data: {
-          isArchived: false,
-          isDraft: false,
+          "isArchived": false,
+          "isDraft": false,
           fieldData: {
             name: phoneFull,
-            slug: phoneFull,
+            slug: phoneFull.replace(/\+/g, ''),
           },
         },
       };
