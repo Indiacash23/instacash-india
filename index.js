@@ -53,49 +53,24 @@ app.post('/order', async (req, res) => {
         allItems: items, // Додаємо всі елементи до відповіді
       });
     } else {
-      // Якщо елемент не знайдено, створимо новий
-      const createOptions = {
-        method: 'POST',
-        url: `https://api.webflow.com/v2/collections/${collectionId}/items`,
-        headers: {
-          accept: 'application/json',
-          authorization: `Bearer ${token}`,
-        },
-        data: {
-          fields: {
-            "name": phoneFull, // Номер телефону
-            "full-name": formData["First-Name"] + ' ' + formData["Last-Name"], // Повне ім'я
-            "city": formData["City"], // Місто
-            "language": formData["Language"], // Мова
-            "sum": formData["Sum"], // Сума
-            "the-request-has-been-processed": false, // Примітка про обробку
-            "messenger": formData["Messenger"],
-            "status": "61da663c1046e1c2a962dd15679ce3b1",
-            
-            // Інші поля з formData, якщо необхідно
-          }
-        }
-      };
 
-      try {
-        const createResponse = await axios.request(createOptions);
-        return res.status(200).json({
-          found: false,
-          message: 'Елемент не знайдено, створено новий',
-          data: createResponse.data, // Повертаємо дані нового елемента
-          formData: formData,
-          allItems: items, // Додаємо всі елементи до відповіді
-        });
-      } catch (createError) {
-        console.error('Помилка при створенні нового елемента:', createError.response?.data || createError.message);
-        return res.status(500).json({ error: 'Помилка при створенні нового елемента', formData: formData });
-      }
+      const createOptions = {
+              method: 'POST',
+              url: `https://api.webflow.com/v2/collections/${collectionId}/items`,
+              headers: {
+                accept: 'application/json',
+                authorization: `Bearer ${token}`,
+              },
+
+      };
+      
     }
   } catch (error) {
     console.error('Помилка при зверненні до Webflow API:', error.response?.data || error.message);
     return res.status(500).json({ error: 'Помилка сервера при пошуку номера' });
   }
 });
+
 
 
 
