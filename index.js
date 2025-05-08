@@ -56,36 +56,37 @@ app.post('/order', async (req, res) => {
 
       const createItemOptions = {
         method: 'POST',
-              url: `https://api.webflow.com/v2/collections/${collectionId}/items`,
-              headers: {
-                accept: 'application/json',
-                authorization: `Bearer ${token}`,
-              },
+        url: `https://api.webflow.com/v2/collections/${collectionId}/items/live`, // /live — якщо хочеш одразу публікувати
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+        data: {
+          isArchived: false,
+          isDraft: false,
           fieldData: {
-            "_archived": false,
-            "_draft": false,
-            "name": phoneFull,
-            "slug": phoneFull,
+            name: phoneFull,
+            slug: phoneFull,
             "full-name": formData["First-Name"] + ' ' + formData["Last-Name"],
-            "city": formData["City"],
-            "language": formData["Language"],
-            "sum": formData["Sum"],
+            city: formData["City"],
+            language: formData["Language"],
+            sum: formData["Sum"],
             "the-request-has-been-processed": false,
-            "messenger": formData["Messenger"],
-            "status": "61da663c1046e1c2a962dd15679ce3b1",
-          }
-        };
-
-        axios.request(createItemOptions)
-          .then(res2 => {
-              console.log("Створено новий айтем:", res2.data);
-              res.status(200).json({ message: "Айтем успішно створено" });
-            })
-          .catch(err => {
-            console.error(err);
-            res.end();
-          });
-      
+            messenger: formData["Messenger"],
+            status: "61da663c1046e1c2a962dd15679ce3b1",
+          },
+        },
+      };
+      axios.request(createItemOptions)
+        .then(res2 => {
+            console.log("Створено новий айтем:", res2.data);
+            res.status(200).json({ message: "Айтем успішно створено" });
+          })
+        .catch(err => {
+          console.error(err);
+          res.end();
+        });
     }
   } catch (error) {
     console.error('Помилка при зверненні до Webflow API:', error.response?.data || error.message);
