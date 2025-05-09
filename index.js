@@ -102,7 +102,7 @@ app.post('/order', async (req, res) => {
   } catch (error) {
      console.error('Помилка при зверненні до Webflow API:', error.response?.data || error.message);
      return res.status(500).json({ error: 'Помилка сервера при пошуку номера' });
-  }
+  } 
 });
 
 
