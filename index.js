@@ -27,8 +27,7 @@ const collectionId = '681b28fcc8c82028a58b5955';
 
 app.post('/order', async (req, res) => {
   const formData = req.body;
-  const phoneFull = formData.Phone_full.replace(/\s+/g, ''); // Видаляємо всі пробіли
-
+  const phoneFull = formData.Phone_full.replace(/\s+/g, '');
   const options = {
     method: 'GET',
     url: `https://api.webflow.com/v2/collections/${collectionId}/items?limit=100`,
@@ -37,26 +36,43 @@ app.post('/order', async (req, res) => {
       authorization: `Bearer ${token}`,
     },
   };
-
   try {
     const response = await axios.request(options);
     const items = response.data.items;
-
-    // Знайти елемент за номером телефону, видаляючи пробіли з номера в колекції
     const foundItem = items.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
-
     if (foundItem) {
-      return res.status(200).json({
-        found: true,
-        message: 'Елемент знайдено',
-        data: foundItem,
-        allItems: items, // Додаємо всі елементи до відповіді
-      });
-    } else {
+      // return res.status(200).json({
+        // found: true,
+        // message: 'Елемент знайдено',
+        // data: foundItem,
+        // allItems: items,
+      // });
+      let currentSum = parseFloat(foundItem.fieldData.sum) + parseFloat(formData["Sum"]);
+      if (currentSum > 150000) {
+        currentSum = 150000;
+      }
 
+      const updateItemOptions = {
+        method: 'PATCH',
+        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}`,
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+        data: {
+          isArchived: false,
+          isDraft: false,
+          fieldData: {
+            sum: currentSum,
+          },
+        },
+      };
+      
+    } else {
       const createItemOptions = {
         method: 'POST',
-        url: `https://api.webflow.com/v2/collections/${collectionId}/items/live`, // /live — якщо хочеш одразу публікувати
+        url: `https://api.webflow.com/v2/collections/${collectionId}/items/live`,
         headers: {
           accept: 'application/json',
           'Content-Type': 'application/json',
