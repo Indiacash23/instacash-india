@@ -54,7 +54,7 @@ app.post('/order', async (req, res) => {
         currentSum
       });
 
-      
+    }
       
     } else {
       const createItemOptions = {
