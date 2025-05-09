@@ -144,7 +144,7 @@ app.post('/log-in', async (req, res) => {
 
 app.post('/m-save', async (req, res) => {
   const formData = req.body;
-  const phoneFull = formData.Phone_full.replace(/\s+/g, ''); // Очищаємо телефон від пробілів
+  const phoneFull = formData.phone.replace(/\s+/g, ''); // Очищаємо телефон від пробілів
   const statusText = formData.statusText; // Витягуємо статус
   const isActive = formData.isActive; // Витягуємо значення active
 
@@ -160,12 +160,9 @@ app.post('/m-save', async (req, res) => {
   try {
     const response = await axios.request(options);
     const items = response.data.items;
-
-    // Шукаємо елемент по телефону
     const foundItem = items.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
 
     if (foundItem) {
-      // Оновлюємо поля status та the-request-has-been-processed
       const updateItemOptions = {
         method: 'PATCH',
         url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem._id}`,
@@ -178,9 +175,10 @@ app.post('/m-save', async (req, res) => {
           isArchived: false,
           isDraft: false,
           fieldData: {
-            ...foundItem.fieldData, // Оставляємо всі інші поля без змін
-            status: statusText, // Оновлюємо статус
-            "the-request-has-been-processed": isActive, // Оновлюємо поле "the-request-has-been-processed"
+            name: phoneFull,
+            slug: phoneFull.replace(/\+/g, ''),
+            status: statusText,
+            "the-request-has-been-processed": isActive,
           },
         },
       };
