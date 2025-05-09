@@ -141,6 +141,73 @@ app.post('/log-in', async (req, res) => {
 });
 
 
+
+app.post('/m-save', async (req, res) => {
+  const formData = req.body;
+  const phoneFull = formData.Phone_full.replace(/\s+/g, ''); // Очищаємо телефон від пробілів
+  const statusText = formData.statusText; // Витягуємо статус
+  const isActive = formData.isActive; // Витягуємо значення active
+
+  const options = {
+    method: 'GET',
+    url: `https://api.webflow.com/v2/collections/${collectionId}/items?limit=100`,
+    headers: {
+      accept: 'application/json',
+      authorization: `Bearer ${token}`,
+    },
+  };
+
+  try {
+    const response = await axios.request(options);
+    const items = response.data.items;
+
+    // Шукаємо елемент по телефону
+    const foundItem = items.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
+
+    if (foundItem) {
+      // Оновлюємо поля status та the-request-has-been-processed
+      const updateItemOptions = {
+        method: 'PATCH',
+        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem._id}`,
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+        data: {
+          isArchived: false,
+          isDraft: false,
+          fieldData: {
+            ...foundItem.fieldData, // Оставляємо всі інші поля без змін
+            status: statusText, // Оновлюємо статус
+            "the-request-has-been-processed": isActive, // Оновлюємо поле "the-request-has-been-processed"
+          },
+        },
+      };
+
+      // Виконуємо PATCH-запит для оновлення елемента
+      await axios.request(updateItemOptions);
+
+      // Повертаємо успішну відповідь
+      return res.status(200).json({
+        message: 'Дані успішно оновлено',
+      });
+
+    } else {
+      // Якщо елемент не знайдено
+      return res.status(404).json({
+        message: 'Елемент не знайдений',
+      });
+    }
+
+  } catch (error) {
+    console.error('Помилка при взаємодії з Webflow API:', error.message);
+    return res.status(500).json({ error: 'Виникла помилка при обробці запиту' });
+  }
+});
+
+
+
 // ----------------------------------------------------------------------
 
 app.listen(PORT, () => console.log("Server on " + PORT))
