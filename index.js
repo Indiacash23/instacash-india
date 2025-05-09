@@ -105,10 +105,39 @@ app.post('/order', async (req, res) => {
   } 
 });
 
+app.post('/log-in', async (req, res) => {
+  const formData = req.body;
+  const phoneFull = formData.Phone_full.replace(/\s+/g, '');
 
-
-
-
+  const options = {
+    method: 'GET',
+    url: `https://api.webflow.com/v2/collections/${collectionId}/items?limit=100`,
+    headers: {
+      accept: 'application/json',
+      authorization: `Bearer ${token}`,
+    },
+  };
+  try {
+    const response = await axios.request(options);
+    const items = response.data.items;
+    const foundItem = items.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
+    if (foundItem) {
+      return res.status(200).json({
+        success: true,
+        message: 'Користувача знайдено',
+        user: foundItem
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: 'Користувача не знайдено'
+      });
+    }
+  } catch (error) {
+    console.error('Помилка при зверненні до Webflow API:', error.response?.data || error.message);
+    return res.status(500).json({ error: 'Помилка сервера при пошуку номера' });
+  }
+});
 
 
 // ----------------------------------------------------------------------
