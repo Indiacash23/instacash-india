@@ -140,14 +140,11 @@ app.post('/log-in', async (req, res) => {
   }
 });
 
-
-
 app.post('/m-save', async (req, res) => {
   const formData = req.body;
-  const phoneFull = formData.phone.replace(/\s+/g, ''); // Очищаємо телефон від пробілів
-  const statusText = formData.statusText; // Витягуємо статус
-  const isActive = formData.isActive; // Витягуємо значення active
-
+  const phoneFull = formData.phone.replace(/\s+/g, '');
+  const statusText = formData.statusText;
+  const isActive = formData.isActive;
   const options = {
     method: 'GET',
     url: `https://api.webflow.com/v2/collections/${collectionId}/items?limit=100`,
@@ -156,12 +153,10 @@ app.post('/m-save', async (req, res) => {
       authorization: `Bearer ${token}`,
     },
   };
-
   try {
     const response = await axios.request(options);
     const items = response.data.items;
     const foundItem = items.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
-
     if (foundItem) {
       const updateItemOptions = {
         method: 'PATCH',
@@ -182,22 +177,58 @@ app.post('/m-save', async (req, res) => {
           },
         },
       };
-
-      // Виконуємо PATCH-запит для оновлення елемента
       await axios.request(updateItemOptions);
-
-      // Повертаємо успішну відповідь
       return res.status(200).json({
         message: 'Дані успішно оновлено',
       });
-
     } else {
-      // Якщо елемент не знайдено
       return res.status(404).json({
         message: 'Елемент не знайдений',
       });
     }
+  } catch (error) {
+    console.error('Помилка при взаємодії з Webflow API:', error.message);
+    return res.status(500).json({ error: 'Виникла помилка при обробці запиту' });
+  }
+});
 
+app.post('/m-delete', async (req, res) => {
+  const formData = req.body;
+  const phoneFull = formData.phone.replace(/\s+/g, '');
+
+  const options = {
+    method: 'GET',
+    url: `https://api.webflow.com/v2/collections/${collectionId}/items?limit=100`,
+    headers: {
+      accept: 'application/json',
+      authorization: `Bearer ${token}`,
+    },
+  };
+
+  try {
+    const response = await axios.request(options);
+    const items = response.data.items;
+    const foundItem = items.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
+
+    if (foundItem) {
+      const updateItemOptions = {
+        method: 'DELETE',
+        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}/live`,
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${token}`,
+        }
+      };
+      await axios.request(updateItemOptions);
+      return res.status(200).json({
+        message: 'Дані успішно оновлено',
+      });
+    } else {
+      return res.status(404).json({
+        message: 'Елемент не знайдений',
+      });
+    }
   } catch (error) {
     console.error('Помилка при взаємодії з Webflow API:', error.message);
     return res.status(500).json({ error: 'Виникла помилка при обробці запиту' });
