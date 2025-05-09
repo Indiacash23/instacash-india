@@ -124,8 +124,9 @@ app.post('/log-in', async (req, res) => {
     if (foundItem) {
       return res.status(200).json({
         success: true,
-        message: 'Користувача знайдено',
-        user: foundItem
+        user: foundItem.fieldData['full-name'],
+        sum: foundItem.fieldData.sum,
+        status: foundItem.fieldData.status,
       });
     } else {
       return res.status(404).json({
