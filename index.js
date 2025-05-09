@@ -41,12 +41,7 @@ app.post('/order', async (req, res) => {
     const items = response.data.items;
     const foundItem = items.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
     if (foundItem) {
-      // return res.status(200).json({
-        // found: true,
-        // message: 'Елемент знайдено',
-        // data: foundItem,
-        // allItems: items,
-      // });
+
       let currentSum = parseFloat(foundItem.fieldData.sum) + parseFloat(formData["Sum"]);
       if (currentSum > 150000) {
         currentSum = 150000;
@@ -61,9 +56,11 @@ app.post('/order', async (req, res) => {
           authorization: `Bearer ${token}`,
         },
         data: {
-          isArchived: false,
-          isDraft: false,
+          "isArchived": false,
+          "isDraft": false,
           fieldData: {
+            name: phoneFull,
+            slug: phoneFull.replace(/\+/g, ''),
             sum: currentSum,
           },
         },
