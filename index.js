@@ -42,21 +42,37 @@ app.post('/order', async (req, res) => {
     const foundItem = items.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
 
     if (foundItem) {
-      const originalSum = parseFloat(foundItem.fieldData.sum);
-      const newSum = parseFloat(formData["Sum"]);
+      const originalSum = parseFloat(foundItem.fieldData.sum || 0);
+      const newSum = parseFloat(formData["Sum"] || 0);
       let currentSum = originalSum + newSum;
-      if (currentSum > 150000) {
-        currentSum = 150000;
-      }
+      if (currentSum > 150000) currentSum = 150000;
 
+      const updateItemOptions = {
+        method: 'PATCH',
+        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}`,
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+        data: {
+          isArchived: false,
+          isDraft: false,
+          fieldData: {
+            name: foundItem.fieldData.name,
+            slug: foundItem.fieldData.slug,
+            sum: currentSum,
+          },
+        },
+      };
+
+      const updateResponse = await axios.request(updateItemOptions);
+      console.log("Айтем оновлено:", updateResponse.data);
       return res.status(200).json({
-        foundItem,
-        originalSum,
-        addedSum: newSum,
-        currentSum
+        message: "Айтем оновлено успішно",
+        updatedSum: currentSum,
       });
 
-      
     } else {
       const createItemOptions = {
         method: 'POST',
