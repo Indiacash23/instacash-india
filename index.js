@@ -47,24 +47,14 @@ app.post('/order', async (req, res) => {
         currentSum = 150000;
       }
 
-      const updateItemOptions = {
-        method: 'PATCH',
-        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem[0].id}`,
-        headers: {
-          accept: 'application/json',
-          'Content-Type': 'application/json',
-          authorization: `Bearer ${token}`,
-        },
-        data: {
-          "isArchived": false,
-          "isDraft": false,
-          fieldData: {
-            name: phoneFull,
-            slug: phoneFull.replace(/\+/g, ''),
-            sum: currentSum,
-          },
-        },
-      };
+      return res.status(200).json({
+        foundItem,
+        originalSum,
+        addedSum: newSum,
+        currentSum
+      });
+
+      
       
     } else {
       const createItemOptions = {
