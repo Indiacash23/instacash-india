@@ -24,7 +24,6 @@ const collectionId = '681b28fcc8c82028a58b5955';
 
 // ----------------------------------------------------------------------
 
-
 app.post('/order', async (req, res) => {
   const formData = req.body;
   const phoneFull = formData.Phone_full.replace(/\s+/g, '');
@@ -64,9 +63,9 @@ app.post('/order', async (req, res) => {
         },
       };
       const updateResponse = await axios.request(updateItemOptions);
-      // return res.status(200).json({
-      //   updatedSum: currentSum,
-      // });
+       return res.status(200).json({
+         updatedSum: currentSum,
+       });
     } else {
       const createItemOptions = {
         method: 'POST',
@@ -94,16 +93,15 @@ app.post('/order', async (req, res) => {
       };
       axios.request(createItemOptions)
         .then(res2 => {
-            // res.status(200).json({ message: "Айтем успішно створено" });
+             res.status(200).json({ message: "Айтем успішно створено" });
           })
         .catch(err => {
-          // console.error(err);
           res.end();
         });
     }
   } catch (error) {
-    // console.error('Помилка при зверненні до Webflow API:', error.response?.data || error.message);
-    // return res.status(500).json({ error: 'Помилка сервера при пошуку номера' });
+     console.error('Помилка при зверненні до Webflow API:', error.response?.data || error.message);
+     return res.status(500).json({ error: 'Помилка сервера при пошуку номера' });
   }
 });
 
