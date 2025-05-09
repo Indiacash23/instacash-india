@@ -165,7 +165,7 @@ app.post('/m-save', async (req, res) => {
     if (foundItem) {
       const updateItemOptions = {
         method: 'PATCH',
-        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem._id}`,
+        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}/live`,
         headers: {
           accept: 'application/json',
           'Content-Type': 'application/json',
