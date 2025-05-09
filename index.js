@@ -20,7 +20,7 @@ app.use(function (req, res, next) {
   });
 
 const token = '20c3c8ff3b9adbeeabb3730677330760459d9a62d396ec2377949491a2725c72';
-const collectionId = '681b28fcc8c82028a58b5955';
+const collectionId = '681e1e483b0faaf2ec1eeea7';
 
 // ----------------------------------------------------------------------
 
@@ -213,8 +213,8 @@ app.post('/m-delete', async (req, res) => {
     if (foundItem) {
       const updateItemOptions = {
         method: 'DELETE',
-        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}/live`,
-        // url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}`,
+        // url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}/live`,
+        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}`,
         headers: {
           accept: 'application/json',
           'Content-Type': 'application/json',
