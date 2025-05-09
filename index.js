@@ -49,7 +49,7 @@ app.post('/order', async (req, res) => {
 
       const updateItemOptions = {
         method: 'PATCH',
-        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}`,
+        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}/live`,
         headers: {
           accept: 'application/json',
           'Content-Type': 'application/json',
