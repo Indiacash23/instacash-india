@@ -41,22 +41,20 @@ app.post('/order', async (req, res) => {
     const items = response.data.items;
     const foundItem = items.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
 
-     if (foundItem) {
+    if (foundItem) {
       const originalSum = parseFloat(foundItem.fieldData.sum);
       const newSum = parseFloat(formData["Sum"]);
       let currentSum = originalSum + newSum;
       if (currentSum > 150000) {
         currentSum = 150000;
       }
-    
-      // Повернення значень для перевірки
+
       return res.status(200).json({
         foundItem,
         originalSum,
         addedSum: newSum,
         currentSum
       });
-    }
 
       
     } else {
