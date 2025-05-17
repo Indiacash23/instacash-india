@@ -43,7 +43,7 @@ app.post('/order', async (req, res) => {
       const originalSum = parseFloat(foundItem.fieldData.sum || 0);
       const newSum = parseFloat(formData["Sum"] || 0);
       let currentSum = originalSum + newSum;
-      if (currentSum > 150000) currentSum = 150000;
+      if (currentSum > 100000) currentSum = 100000;
       const updateItemOptions = {
         method: 'PATCH',
         url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}/live`,
