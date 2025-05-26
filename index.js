@@ -148,18 +148,14 @@ app.post('/m-save', async (req, res) => {
   const phoneFull = formData.phone.replace(/\s+/g, '');
   const statusText = formData.statusText;
   const isActive = formData.isActive;
-
   const headers = {
     accept: 'application/json',
     authorization: `Bearer ${token}`,
   };
-
   const limit = 100;
   let offset = 0;
   let allItems = [];
-
   try {
-    // Завантажуємо ВСІ айтеми з колекції
     while (true) {
       const response = await axios.get(
         `https://api.webflow.com/v2/collections/${collectionId}/items?limit=${limit}&offset=${offset}`,
@@ -170,14 +166,11 @@ app.post('/m-save', async (req, res) => {
       if (items.length < limit) break;
       offset += limit;
     }
-
-    // Пошук айтема за телефоном
     const foundItem = allItems.find(
       item => item.fieldData?.name?.replace(/\s+/g, '') === phoneFull
     );
 
     if (foundItem) {
-      // Оновлюємо айтем
       const updateOptions = {
         method: 'PATCH',
         url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}/live`,
@@ -197,9 +190,7 @@ app.post('/m-save', async (req, res) => {
           },
         },
       };
-
       await axios.request(updateOptions);
-
       return res.status(200).json({ message: 'Дані успішно оновлено' });
     } else {
       return res.status(404).json({ message: 'Елемент не знайдений' });
@@ -210,52 +201,60 @@ app.post('/m-save', async (req, res) => {
   }
 });
 
-
 // ------------------------------------------------------------------------------------------------------------------------------------------------
 
-
 app.post('/m-delete', async (req, res) => {
-const formData = req.body;
-const phoneFull = formData.phone.replace(/\s+/g, '');
+  const formData = req.body;
+  const phoneFull = formData.phone.replace(/\s+/g, '');
 
-const options = {
-  method: 'GET',
-  url: `https://api.webflow.com/v2/collections/${collectionId}/items?limit=100`,
-  headers: {
+  const headers = {
     accept: 'application/json',
     authorization: `Bearer ${token}`,
-  },
-};
+  };
 
-try {
-  const response = await axios.request(options);
-  const items = response.data.items;
-  const foundItem = items.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
+  const limit = 100;
+  let offset = 0;
+  let allItems = [];
 
-  if (foundItem) {
-    const updateItemOptions = {
-      method: 'DELETE',
-      url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}/live`,
-      // url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}`,
-      headers: {
-        accept: 'application/json',
-        'Content-Type': 'application/json',
-        authorization: `Bearer ${token}`,
-      }
-    };
-    await axios.request(updateItemOptions);
-    return res.status(200).json({
-      message: 'Дані успішно оновлено',
-    });
-  } else {
-    return res.status(404).json({
-      message: 'Елемент не знайдений',
-    });
+  try {
+    // Отримуємо всі айтеми з колекції (з пагінацією)
+    while (true) {
+      const response = await axios.get(
+        `https://api.webflow.com/v2/collections/${collectionId}/items?limit=${limit}&offset=${offset}`,
+        { headers }
+      );
+      const items = response.data.items || [];
+      allItems = allItems.concat(items);
+      if (items.length < limit) break;
+      offset += limit;
+    }
+
+    const foundItem = allItems.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
+
+    if (foundItem) {
+      const updateItemOptions = {
+        method: 'DELETE',
+        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}/live`,
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+      };
+
+      await axios.request(updateItemOptions);
+      return res.status(200).json({
+        message: 'Дані успішно оновлено',
+      });
+    } else {
+      return res.status(404).json({
+        message: 'Елемент не знайдений',
+      });
+    }
+  } catch (error) {
+    console.error('Помилка при взаємодії з Webflow API:', error.message);
+    return res.status(500).json({ error: 'Виникла помилка при обробці запиту' });
   }
-} catch (error) {
-  console.error('Помилка при взаємодії з Webflow API:', error.message);
-  return res.status(500).json({ error: 'Виникла помилка при обробці запиту' });
-}
 });
 
 // ----------------------------------------------------------------------
