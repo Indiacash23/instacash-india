@@ -146,33 +146,37 @@ app.post('/m-save', async (req, res) => {
   const phoneFull = formData.phone.replace(/\s+/g, '');
   const statusText = formData.statusText;
   const isActive = formData.isActive;
-  
+
+  const headers = {
+    accept: 'application/json',
+    authorization: `Bearer ${token}`,
+  };
+
   const limit = 100;
   let offset = 0;
   let allItems = [];
-  let hasMore = true;
-  
+
   try {
-    while (hasMore) {
-      const response = await axios.get(`https://api.webflow.com/v2/collections/${collectionId}/items?limit=${limit}&offset=${offset}`, {
-        headers: {
-          accept: 'application/json',
-          authorization: `Bearer ${token}`,
-        },
-      });
-  
+    // Завантажуємо ВСІ айтеми з колекції
+    while (true) {
+      const response = await axios.get(
+        `https://api.webflow.com/v2/collections/${collectionId}/items?limit=${limit}&offset=${offset}`,
+        { headers }
+      );
       const items = response.data.items || [];
       allItems = allItems.concat(items);
-      if (items.length < limit) {
-        hasMore = false;
-      } else {
-        offset += limit;
-      }
+      if (items.length < limit) break;
+      offset += limit;
     }
-    const foundItem = allItems.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
-  
+
+    // Пошук айтема за телефоном
+    const foundItem = allItems.find(
+      item => item.fieldData?.name?.replace(/\s+/g, '') === phoneFull
+    );
+
     if (foundItem) {
-      const updateItemOptions = {
+      // Оновлюємо айтем
+      const updateOptions = {
         method: 'PATCH',
         url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}/live`,
         headers: {
@@ -187,21 +191,16 @@ app.post('/m-save', async (req, res) => {
             name: phoneFull,
             slug: phoneFull.replace(/\+/g, ''),
             status: statusText,
-            "the-request-has-been-processed": isActive,
+            'the-request-has-been-processed': isActive,
           },
         },
       };
-  
-      await axios.request(updateItemOptions);
-  
-      return res.status(200).json({
-        message: 'Дані успішно оновлено',
-      });
-  
+
+      await axios.request(updateOptions);
+
+      return res.status(200).json({ message: 'Дані успішно оновлено' });
     } else {
-      return res.status(404).json({
-        message: 'Елемент не знайдений',
-      });
+      return res.status(404).json({ message: 'Елемент не знайдений' });
     }
   } catch (error) {
     console.error('Помилка при взаємодії з Webflow API:', error.response?.data || error.message);
