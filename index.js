@@ -106,40 +106,54 @@ try {
 });
 
 app.post('/log-in', async (req, res) => {
-const formData = req.body;
-const phoneFull = formData.Phone_full.replace(/\s+/g, '');
+  const formData = req.body;
+  const phoneFull = formData.Phone_full.replace(/\s+/g, '');
 
-const options = {
-  method: 'GET',
-  url: `https://api.webflow.com/v2/collections/${collectionId}/items?limit=100`,
-  headers: {
+  const headers = {
     accept: 'application/json',
     authorization: `Bearer ${token}`,
-  },
-};
-try {
-  const response = await axios.request(options);
-  const items = response.data.items;
-  const foundItem = items.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
-  if (foundItem) {
-    return res.status(200).json({
-      success: true,
-      user: foundItem.fieldData['full-name'],
-      sum: foundItem.fieldData.sum,
-      status: foundItem.fieldData.status,
-      date: foundItem.createdOn,
-    });
-  } else {
-    return res.status(404).json({
-      success: false,
-      message: 'Користувача не знайдено'
-    });
+  };
+
+  const limit = 100;
+  let offset = 0;
+  let allItems = [];
+
+  try {
+    // Завантаження всіх айтемів колекції з пагінацією
+    while (true) {
+      const response = await axios.get(
+        `https://api.webflow.com/v2/collections/${collectionId}/items?limit=${limit}&offset=${offset}`,
+        { headers }
+      );
+      const items = response.data.items || [];
+      allItems = allItems.concat(items);
+      if (items.length < limit) break;
+      offset += limit;
+    }
+
+    // Пошук айтема за телефоном
+    const foundItem = allItems.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
+
+    if (foundItem) {
+      return res.status(200).json({
+        success: true,
+        user: foundItem.fieldData['full-name'],
+        sum: foundItem.fieldData.sum,
+        status: foundItem.fieldData.status,
+        date: foundItem.createdOn,
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: 'Користувача не знайдено'
+      });
+    }
+  } catch (error) {
+    console.error('Помилка при зверненні до Webflow API:', error.response?.data || error.message);
+    return res.status(500).json({ error: 'Помилка сервера при пошуку номера' });
   }
-} catch (error) {
-  console.error('Помилка при зверненні до Webflow API:', error.response?.data || error.message);
-  return res.status(500).json({ error: 'Помилка сервера при пошуку номера' });
-}
 });
+
 
 // --------------------------------------------------------------------------------------------------------------------------------
 
