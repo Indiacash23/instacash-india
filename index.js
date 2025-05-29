@@ -126,7 +126,7 @@ app.post('/order', async (req, res) => {
 
       axios.request(createItemOptions)
         .then(() => {
-          res.status(200).json({ message: "Айтем успішно створено" });
+          res.status(200).json({ customerId: uniqueId });
         })
         .catch(err => {
           console.error('Помилка створення айтема:', err.response?.data || err.message);
@@ -176,7 +176,7 @@ app.post('/log-in', async (req, res) => {
         sum: foundItem.fieldData.sum,
         status: foundItem.fieldData.status,
         date: foundItem.createdOn,
-        cid: foundItem['customer-id'],
+        customerId: foundItem['customer-id'],
       });
     } else {
       return res.status(404).json({
