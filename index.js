@@ -103,6 +103,7 @@ app.post('/order', async (req, res) => {
             sum: formData["Sum"],
             "the-request-has-been-processed": false,
             messenger: formData["Messenger"],
+            "phone-number-or-nickname-in-messenger": formData["Nick"],
             status: "61da663c1046e1c2a962dd15679ce3b1",
           },
         },
