@@ -176,6 +176,7 @@ app.post('/log-in', async (req, res) => {
         sum: foundItem.fieldData.sum,
         status: foundItem.fieldData.status,
         date: foundItem.createdOn,
+        cid: foundItem['customer-id'],
       });
     } else {
       return res.status(404).json({
