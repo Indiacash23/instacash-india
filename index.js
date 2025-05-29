@@ -36,8 +36,23 @@ app.post('/order', async (req, res) => {
   let offset = 0;
   let allItems = [];
 
+  function generate8DigitNumber() {
+    return Math.floor(10000000 + Math.random() * 90000000).toString();
+  }
+
+  async function generateUnique8DigitNumber(existingItems) {
+    let uniqueNumber;
+    let isUnique = false;
+    while (!isUnique) {
+      uniqueNumber = generate8DigitNumber();
+      isUnique = !existingItems.some(
+        item => item.fieldData["unique-id"] === uniqueNumber
+      );
+    }
+    return uniqueNumber;
+  }
+
   try {
-    // Завантаження айтемів з пагінацією
     while (true) {
       const response = await axios.get(
         `https://api.webflow.com/v2/collections/${collectionId}/items?limit=${limit}&offset=${offset}`,
@@ -48,8 +63,6 @@ app.post('/order', async (req, res) => {
       if (items.length < limit) break;
       offset += limit;
     }
-
-    // Пошук айтема за телефоном
     const foundItem = allItems.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
 
     if (foundItem) {
@@ -83,6 +96,7 @@ app.post('/order', async (req, res) => {
         updatedSum: currentSum,
       });
     } else {
+      const uniqueId = await generateUnique8DigitNumber(allItems);
       const createItemOptions = {
         method: 'POST',
         url: `https://api.webflow.com/v2/collections/${collectionId}/items/live`,
@@ -105,6 +119,7 @@ app.post('/order', async (req, res) => {
             messenger: formData["Messenger"],
             "phone-number-or-nickname-in-messenger": formData["Nick"],
             status: "61da663c1046e1c2a962dd15679ce3b1",
+            "customer-id": uniqueId,
           },
         },
       };
