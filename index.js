@@ -120,6 +120,7 @@ app.post('/order', async (req, res) => {
             "phone-number-or-nickname-in-messenger": formData["Nick"],
             status: "61da663c1046e1c2a962dd15679ce3b1",
             "customer-id": uniqueId,
+            period: formData["Period"],
           },
         },
       };
