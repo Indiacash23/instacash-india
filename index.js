@@ -16,13 +16,6 @@ app.use(function (req, res, next) {
 const token = '5d5ea34aa57a25caf974a351dbfd275538dcbbd2277a94b839d8e67e164f34cd';
 const collectionId = '681e1e483b0faaf2ec1eeea7';
 
-
-app.post('/m-test', (req, res) => {
-  console.log('POST /m-test received');
-  res.json({ message: 'OK' });
-});
-
-
 app.post('/order', async (req, res) => {
   const formData = req.body;
   const phoneFull = formData.Phone_full.replace(/\s+/g, '');
