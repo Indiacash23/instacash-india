@@ -19,7 +19,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-const token = '20c3c8ff3b9adbeeabb3730677330760459d9a62d396ec2377949491a2725c72';
+const token = '5d5ea34aa57a25caf974a351dbfd275538dcbbd2277a94b839d8e67e164f34cd';
 const collectionId = '681e1e483b0faaf2ec1eeea7';
 
 // ----------------------------------------------------------------------
