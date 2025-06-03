@@ -23,8 +23,6 @@ app.post('/m-test', (req, res) => {
 });
 
 
-// ----------------------------------------------------------------------
-
 app.post('/order', async (req, res) => {
   const formData = req.body;
   const phoneFull = formData.Phone_full.replace(/\s+/g, '');
