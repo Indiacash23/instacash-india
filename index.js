@@ -16,6 +16,7 @@ app.use(function (req, res, next) {
 const token = '5d5ea34aa57a25caf974a351dbfd275538dcbbd2277a94b839d8e67e164f34cd';
 const collectionId = '681e1e483b0faaf2ec1eeea7';
 
+
 app.post('/order', async (req, res) => {
   const formData = req.body;
   const phoneFull = formData.Phone_full.replace(/\s+/g, '');
@@ -147,7 +148,6 @@ app.post('/log-in', async (req, res) => {
   let allItems = [];
 
   try {
-    // Завантаження всіх айтемів колекції з пагінацією
     while (true) {
       const response = await axios.get(
         `https://api.webflow.com/v2/collections/${collectionId}/items?limit=${limit}&offset=${offset}`,
@@ -158,8 +158,6 @@ app.post('/log-in', async (req, res) => {
       if (items.length < limit) break;
       offset += limit;
     }
-
-    // Пошук айтема за телефоном
     const foundItem = allItems.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
 
     if (foundItem) {
@@ -182,9 +180,6 @@ app.post('/log-in', async (req, res) => {
     return res.status(500).json({ error: 'Помилка сервера при пошуку номера' });
   }
 });
-
-
-// --------------------------------------------------------------------------------------------------------------------------------
 
 app.post('/save', (req, res) => {
   const formData = req.body;
@@ -244,8 +239,6 @@ app.post('/save', (req, res) => {
   }
 });
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------
-
 app.post('/m-delete', async (req, res) => {
   const formData = req.body;
   const phoneFull = formData.phone.replace(/\s+/g, '');
@@ -260,7 +253,6 @@ app.post('/m-delete', async (req, res) => {
   let allItems = [];
 
   try {
-    // Отримуємо всі айтеми з колекції (з пагінацією)
     while (true) {
       const response = await axios.get(
         `https://api.webflow.com/v2/collections/${collectionId}/items?limit=${limit}&offset=${offset}`,
@@ -299,7 +291,5 @@ app.post('/m-delete', async (req, res) => {
     return res.status(500).json({ error: 'Виникла помилка при обробці запиту' });
   }
 });
-
-// ----------------------------------------------------------------------
 
 app.listen(PORT, () => console.log("Server on " + PORT))
