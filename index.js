@@ -181,7 +181,7 @@ app.post('/log-in', async (req, res) => {
   }
 });
 
-app.post('/save', (req, res) => {
+app.post('/save', async (req, res) => {
   const formData = req.body;
   const phoneFull = formData.phone.replace(/\s+/g, '');
   const statusText = formData.statusText;
