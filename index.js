@@ -4,7 +4,7 @@ const PORT = process.env.PORT;
 const app = express();
 app.use(express.json());
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "https://instacash-india.webflow.io");
+  res.header("Access-Control-Allow-Origin", "https://www.instantcash-ind.com");
   res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, PATCH");
   res.header(
     "Access-Control-Allow-Headers",
