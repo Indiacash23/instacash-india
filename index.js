@@ -286,4 +286,72 @@ app.post('/delete', async (req, res) => {
   }
 });
 
+app.post('/delete-all', async (req, res) => {
+  const headers = {
+    accept: 'application/json',
+    authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+
+  const limit = 100;
+  let offset = 0;
+  let allItems = [];
+
+  try {
+    // 1. Отримуємо всі айтеми колекції
+    while (true) {
+      const response = await axios.get(
+        `https://api.webflow.com/v2/collections/${collectionId}/items?limit=${limit}&offset=${offset}`,
+        { headers }
+      );
+      const items = response.data.items || [];
+      allItems = allItems.concat(items);
+      if (items.length < limit) break;
+      offset += limit;
+    }
+
+    if (allItems.length === 0) {
+      return res.status(200).json({ message: 'Колекція вже порожня' });
+    }
+
+    let deletedCount = 0;
+    let failed = [];
+
+    // 2. Проходимо по кожному айтему
+    for (const item of allItems) {
+      const itemId = item.id;
+
+      // 2.1 Знімаємо з публікації (live)
+      try {
+        await axios.delete(
+          `https://api.webflow.com/v2/collections/${collectionId}/items/${itemId}/live`,
+          { headers }
+        );
+      } catch (err) {
+        // Ігноруємо якщо не було опубліковано
+      }
+
+      // 2.2 Видаляємо повністю
+      try {
+        await axios.delete(
+          `https://api.webflow.com/v2/collections/${collectionId}/items/${itemId}`,
+          { headers }
+        );
+        deletedCount++;
+      } catch (err) {
+        failed.push({ id: itemId, error: err.message });
+      }
+    }
+
+    return res.status(200).json({
+      message: `Успішно видалено ${deletedCount} записів`,
+      errors: failed,
+    });
+
+  } catch (error) {
+    console.error('Помилка при масовому видаленні:', error.message);
+    return res.status(500).json({ error: 'Виникла помилка при обробці запиту' });
+  }
+});
+
 app.listen(PORT, () => console.log("Server on " + PORT))
