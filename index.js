@@ -242,16 +242,13 @@ app.post('/save', async (req, res) => {
 app.post('/delete', async (req, res) => {
   const formData = req.body;
   const phoneFull = formData.phone.replace(/\s+/g, '');
-
   const headers = {
     accept: 'application/json',
     authorization: `Bearer ${token}`,
   };
-
   const limit = 100;
   let offset = 0;
   let allItems = [];
-
   try {
     while (true) {
       const response = await axios.get(
@@ -263,34 +260,31 @@ app.post('/delete', async (req, res) => {
       if (items.length < limit) break;
       offset += limit;
     }
-
     const foundItem = allItems.find(item => item.fieldData.name.replace(/\s+/g, '') === phoneFull);
-
-    if (foundItem) {
-      const updateItemOptions = {
-        method: 'DELETE',
-        // url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}/live`,
-        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}`,
-        headers: {
-          accept: 'application/json',
-          'Content-Type': 'application/json',
-          authorization: `Bearer ${token}`,
-        },
-      };
-
-      await axios.request(updateItemOptions);
-      return res.status(200).json({
-        message: 'Дані успішно оновлено',
-      });
-    } else {
-      return res.status(404).json({
-        message: 'Елемент не знайдений',
-      });
+    if (!foundItem) {
+      return res.status(404).json({ message: 'Елемент не знайдений' });
     }
+    const itemId = foundItem.id;
+    try {
+      await axios.delete(
+        `https://api.webflow.com/v2/collections/${collectionId}/items/${itemId}/live`,
+        { headers: { ...headers, 'Content-Type': 'application/json' } }
+      );
+    } catch (err) {
+      console.warn('Не вдалося зняти з публікації (можливо вже в чернетках):', err.message);
+    }
+    await axios.delete(
+      `https://api.webflow.com/v2/collections/${collectionId}/items/${itemId}`,
+      { headers }
+    );
+    return res.status(200).json({
+      message: 'Елемент успішно повністю видалено',
+    });
   } catch (error) {
     console.error('Помилка при взаємодії з Webflow API:', error.message);
     return res.status(500).json({ error: 'Виникла помилка при обробці запиту' });
   }
 });
+
 
 app.listen(PORT, () => console.log("Server on " + PORT))
