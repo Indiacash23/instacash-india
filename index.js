@@ -269,7 +269,8 @@ app.post('/delete', async (req, res) => {
     if (foundItem) {
       const updateItemOptions = {
         method: 'DELETE',
-        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}/live`,
+        // url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}/live`,
+        url: `https://api.webflow.com/v2/collections/${collectionId}/items/${foundItem.id}`,
         headers: {
           accept: 'application/json',
           'Content-Type': 'application/json',
